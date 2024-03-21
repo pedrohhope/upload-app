@@ -21,7 +21,7 @@ const FilesListSearch = () => {
         <div className="w-full">
             <Input
                 type="text"
-                placeholder="search"
+                placeholder="Search"
                 onChange={onChangeSearch}
                 value={search}
             />

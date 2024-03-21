@@ -18,12 +18,11 @@ const FilesUpload = ({
 }: {
     user: User
 }) => {
-    const [uploadFile, uploading] = useUploadFile();
+    const [uploadFile, uploading, UploadTaskSnapshot] = useUploadFile();
     const [file, setFile] = useState<File | undefined>(undefined);
     const storageRef = ref(storage, `uploads/${user.uid}/${file?.name}`)
     const { toast } = useToast()
     const [open, setOpen] = useState(false)
-
 
     const handleSubmit = async (event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
         event.preventDefault()
@@ -34,6 +33,10 @@ const FilesUpload = ({
             await uploadFile(storageRef, file, {
                 contentType: file.type
             })
+
+            console.log(UploadTaskSnapshot)
+
+            console.log("File uploaded successfully")
 
             toast({
                 title: "Uploaded successfully",

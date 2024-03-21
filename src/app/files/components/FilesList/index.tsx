@@ -1,9 +1,6 @@
 "use client"
-import { storage } from "@/app/firebase"
 import { Skeleton } from "@/components/ui/skeleton"
 import { User } from "firebase/auth"
-import { listAll, ref, StorageReference } from "firebase/storage"
-import { useEffect, useState } from "react"
 import { FilesListContainer } from "./FilesListContainer"
 import { FilesListSearch } from "./FilesListSearch"
 import { FilesTable } from "./FilesTable"
@@ -19,19 +16,6 @@ const FilesList = ({
     user: User,
     loading: boolean
 }) => {
-    const userFiles = ref(storage, `uploads/${user.uid}/`)
-    const [userFilesData, setUserFilesData] = useState<StorageReference[]>([])
-
-
-    useEffect(() => {
-        const getFiles = async () => {
-            const files = await listAll(userFiles);
-            setUserFilesData(files.items)
-        }
-
-        getFiles()
-
-    }, [user.uid])
 
 
     return (
@@ -45,18 +29,7 @@ const FilesList = ({
                         </div>
                     </div>
 
-                    <div>
-                        <FilesTable
-                            columns={
-                                [{
-                                    accessorKey: "name",
-                                    header: "Name",
-                                }]
-                            }
-
-                            data={userFilesData}
-                        />
-                    </div>
+                    <FilesTable loading={loading} user={user} />
                 </div>
             ) : (
                 <div>

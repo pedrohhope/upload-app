@@ -17,13 +17,15 @@ export default function FilesPage({
     const router = useRouter()
     const { search } = searchParams || {};
 
-    if (!user && !loading) return router.push("/login")
+    if (!user && !loading) return router.push("/login");
+
+
     return (
         <main>
             <Header loading={loading} user={user as User} />
-            <div className="h-screen w-screen flex justify-center mt-48">
+            <div className="flex justify-center mt-48">
                 <FilesList search={search || ""} user={user as User} loading={loading} />
             </div>
-        </main>
+        </main >
     );
 }
