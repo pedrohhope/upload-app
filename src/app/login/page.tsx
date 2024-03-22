@@ -1,23 +1,35 @@
 "use client"
 import { Button } from '@/components/ui/button';
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
     useSignInWithGoogle
 } from 'react-firebase-hooks/auth';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 
 export default function LoginPage() {
     const router = useRouter();
     const [error, setError] = useState('');
+
     const [
         signInWithGoogle,
     ] = useSignInWithGoogle(auth);
 
     const handleGoogleSignIn = async () => {
         try {
-            await signInWithGoogle();
-            router.push('/');
+            const response = await signInWithGoogle();
+            if (response?.user) {
+                await setDoc(doc(db, 'users', response.user.uid), {
+                    uid: response.user.uid,
+                    name: response.user.displayName,
+                    email: response.user.email,
+                    image: response.user.photoURL,
+                    lastLoginAt: Timestamp.fromDate(new Date()),
+                });
+
+                router.push('/');
+            }
         } catch (error) {
             console.error(error);
             setError(error as string);

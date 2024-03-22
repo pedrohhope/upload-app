@@ -3,7 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { User } from "firebase/auth"
 import { FilesListContainer } from "./FilesListContainer"
 import { FilesListSearch } from "./FilesListSearch"
-import { FilesTable } from "./FilesTable"
 import { FilesUpload } from "./FilesUpload"
 
 
@@ -16,8 +15,6 @@ const FilesList = ({
     user: User,
     loading: boolean
 }) => {
-
-
     return (
         <FilesListContainer>
             {!loading && user ? (
@@ -28,8 +25,6 @@ const FilesList = ({
                             <FilesUpload user={user} />
                         </div>
                     </div>
-
-                    <FilesTable loading={loading} user={user} />
                 </div>
             ) : (
                 <div>

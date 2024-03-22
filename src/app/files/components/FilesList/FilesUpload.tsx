@@ -1,12 +1,14 @@
 "use client"
-import { storage } from "@/app/firebase"
+import { db, storage } from "@/app/firebase"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/components/ui/use-toast"
 import { User } from "firebase/auth"
-import { ref } from "firebase/storage"
+import { addDoc, collection, Timestamp } from "firebase/firestore"
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage"
 import { MouseEvent, useState } from "react"
 import {
     useUploadFile,
@@ -18,11 +20,22 @@ const FilesUpload = ({
 }: {
     user: User
 }) => {
-    const [uploadFile, uploading, UploadTaskSnapshot] = useUploadFile();
+    const [uploadFile, uploading] = useUploadFile();
     const [file, setFile] = useState<File | undefined>(undefined);
-    const storageRef = ref(storage, `uploads/${user.uid}/${file?.name}`)
+    const storageRef = ref(storage, `uploads/${file?.name}`)
     const { toast } = useToast()
     const [open, setOpen] = useState(false)
+    const [prossessingValue, setProcessingValue] = useState(0)
+    const [disabled, setDisabled] = useState(false)
+
+
+    const onOpenModal = () => {
+        if (disabled && open) {
+            return;
+        }
+
+        setOpen(!open)
+    }
 
     const handleSubmit = async (event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
         event.preventDefault()
@@ -30,21 +43,49 @@ const FilesUpload = ({
         try {
             if (!file) throw new Error("No file selected");
             if (!user) throw new Error("User not logged in");
-            await uploadFile(storageRef, file, {
-                contentType: file.type
+            setDisabled(true)
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on("state_changed", (snapshot) => {
+                setProcessingValue((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+            }, (error) => {
+                console.log(error)
+
+                if (error instanceof Error) {
+                    toast({
+                        title: "Error",
+                        description: error.message,
+                        variant: "destructive",
+                    })
+                }
+
+                setDisabled(false)
+            }, async () => {
+
+                await addDoc(collection(db, `users/${user.uid}`, "uploads"), {
+                    url: await getDownloadURL(uploadTask.snapshot.ref),
+                    name: file.name,
+                    size: uploadTask.snapshot.totalBytes,
+                    type: file.type,
+                    userId: user.uid,
+                    createdAt: Timestamp.fromDate(new Date()),
+                    lastUpdatedAt: Timestamp.fromDate(new Date()),
+                })
+
+                toast({
+                    title: "Uploaded successfully",
+                    description: "Your file has been uploaded successfully",
+                })
+
+                setFile(undefined);
+                setProcessingValue(0)
+                setOpen(false)
+                setDisabled(false)
             })
 
-            console.log(UploadTaskSnapshot)
 
-            console.log("File uploaded successfully")
 
-            toast({
-                title: "Uploaded successfully",
-                description: "Your file has been uploaded successfully",
-            })
 
-            setFile(undefined);
-            setOpen(false)
         } catch (error) {
             console.log(error)
 
@@ -64,7 +105,7 @@ const FilesUpload = ({
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={onOpenModal}>
             <DialogTrigger asChild>
                 <Button>Upload</Button>
             </DialogTrigger>
@@ -83,6 +124,7 @@ const FilesUpload = ({
                         id="file"
                         type="file"
                     />
+                    <Progress value={prossessingValue} />
                 </div>
 
                 <DialogFooter className="sm:justify-between">
@@ -95,7 +137,8 @@ const FilesUpload = ({
                     <Button
                         type="submit"
                         onClick={(e) => handleSubmit(e)}
-                        disabled={!file || uploading}
+                        disabled={!file || disabled}
+                        className="disabled:opacity-50 disabled:cursor-not-allowed"
                     >{uploading ? "Uploading..." : "Upload"}</Button>
                 </DialogFooter>
             </DialogContent>
@@ -104,3 +147,4 @@ const FilesUpload = ({
 }
 
 export { FilesUpload }
+
