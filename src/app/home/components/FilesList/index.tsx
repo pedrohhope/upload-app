@@ -1,5 +1,6 @@
 "use client"
 import { auth, db } from "@/app/firebase"
+import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
 import { Skeleton } from "@/components/ui/skeleton"
 import { IUploadFile } from "@/interfaces/uploadFile"
@@ -46,7 +47,12 @@ const FilesList = () => {
         id: "actions",
         header: "Actions",
         cell: ({ row }) => {
-            return <img src="menu-vertical.png" onClick={() => onOpenChange(row.original)} alt="menu" className="cursor-pointer" />
+            return (
+                <Button onClick={() => onOpenChange(row.original)} className="bg-transparent hover:bg-transparent">
+                    <img src="menu-vertical.png" alt="menu" className="cursor-pointer" />
+                </Button>
+
+            )
         }
     }]
 

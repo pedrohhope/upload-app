@@ -19,7 +19,7 @@ const FileDrawer = ({
     if (!file) return;
 
     return (
-        <Drawer open={isOpen} onOpenChange={onOpenChange} snapPoints={['1000px']}>
+        <Drawer open={isOpen} onOpenChange={onOpenChange}>
             <DrawerContent>
                 <div className="mx-auto w-full max-w-lg py-5">
                     <DrawerHeader className="flex justify-between">
