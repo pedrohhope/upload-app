@@ -9,7 +9,7 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 
-import { FilesUpload } from "@/app/files/components/FilesList/FilesUpload"
+import { FilesUpload } from "@/app/home/components/FilesList/FilesUpload"
 import {
     Table,
     TableBody,
