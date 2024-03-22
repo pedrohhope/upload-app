@@ -1,32 +1,32 @@
 "use client"
-import { db, storage } from "@/app/firebase"
+import { auth, db, storage } from "@/app/firebase"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/components/ui/use-toast"
-import { User } from "firebase/auth"
+import { IUploadFile } from "@/interfaces/uploadFile"
 import { addDoc, collection, Timestamp } from "firebase/firestore"
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage"
+import moment from "moment"
 import { MouseEvent, useState } from "react"
+import { useAuthState } from "react-firebase-hooks/auth"
 import {
     useUploadFile,
 } from 'react-firebase-hooks/storage'
 
 
-const FilesUpload = ({
-    user
-}: {
-    user: User
-}) => {
-    const [uploadFile, uploading] = useUploadFile();
+const FilesUpload = () => {
+    const [user] = useAuthState(auth);
+    const [_, uploading] = useUploadFile();
     const [file, setFile] = useState<File | undefined>(undefined);
     const storageRef = ref(storage, `uploads/${file?.name}`)
     const { toast } = useToast()
     const [open, setOpen] = useState(false)
     const [prossessingValue, setProcessingValue] = useState(0)
     const [disabled, setDisabled] = useState(false)
+
 
 
     const onOpenModal = () => {
@@ -62,15 +62,15 @@ const FilesUpload = ({
                 setDisabled(false)
             }, async () => {
 
-                await addDoc(collection(db, `users/${user.uid}`, "uploads"), {
+                const uploadData: IUploadFile = {
                     url: await getDownloadURL(uploadTask.snapshot.ref),
                     name: file.name,
                     size: uploadTask.snapshot.totalBytes,
                     type: file.type,
-                    userId: user.uid,
-                    createdAt: Timestamp.fromDate(new Date()),
-                    lastUpdatedAt: Timestamp.fromDate(new Date()),
-                })
+                    createdAt: Timestamp.fromDate(moment().toDate()),
+                }
+
+                await addDoc(collection(db, `users/${user.uid}`, "uploads"), uploadData)
 
                 toast({
                     title: "Uploaded successfully",

@@ -1,5 +1,4 @@
 "use client"
-import { User } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../firebase";
@@ -15,16 +14,15 @@ export default function FilesPage({
 }) {
     const [user, loading] = useAuthState(auth);
     const router = useRouter()
-    const { search } = searchParams || {};
 
     if (!user && !loading) return router.push("/login");
 
 
     return (
         <main>
-            <Header loading={loading} user={user as User} />
+            <Header />
             <div className="flex justify-center mt-48">
-                <FilesList search={search || ""} user={user as User} loading={loading} />
+                <FilesList />
             </div>
         </main >
     );

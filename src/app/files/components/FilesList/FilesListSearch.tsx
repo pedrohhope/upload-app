@@ -1,5 +1,4 @@
 "use client"
-import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -19,14 +18,10 @@ const FilesListSearch = () => {
 
     return (
         <div className="w-full">
-            <Input
-                type="text"
-                placeholder="Search"
-                onChange={onChangeSearch}
-                value={search}
-            />
+
         </div >
     )
 }
 
 export { FilesListSearch }
+

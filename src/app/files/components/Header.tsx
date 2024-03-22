@@ -1,18 +1,15 @@
 "use client"
 import { auth } from "@/app/firebase";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 
-const Header = ({
-    loading,
-    user
-}: {
-    loading: boolean
-    user: User
-}) => {
+const Header = () => {
+    const [user, loading] = useAuthState(auth);
+
     const router = useRouter()
 
     const handleSignOut = async () => {
@@ -26,10 +23,10 @@ const Header = ({
                 {!loading ? (
                     <div className="flex items-center gap-5">
                         <div>
-                            <img
-                                src={user?.photoURL!}
-                                className="h-20 w-20 rounded-full"
-                            />
+                            <Avatar className="h-20 w-20 rounded-full">
+                                <AvatarImage src={user?.photoURL as string} alt={user?.displayName as string} />
+                                <AvatarFallback>{user?.displayName?.slice(0, 1)}</AvatarFallback>
+                            </Avatar>
                         </div>
 
                         <div>
@@ -66,3 +63,4 @@ const Header = ({
 }
 
 export { Header };
+
