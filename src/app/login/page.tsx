@@ -1,6 +1,6 @@
 "use client"
 import { Button } from '@/components/ui/button';
-import { doc, setDoc, Timestamp } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
@@ -25,7 +25,6 @@ export default function LoginPage() {
                     name: response.user.displayName,
                     email: response.user.email,
                     image: response.user.photoURL,
-                    lastLoginAt: Timestamp.fromDate(new Date()),
                 });
 
                 router.push('/');

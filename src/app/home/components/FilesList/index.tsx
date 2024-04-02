@@ -58,15 +58,16 @@ const FilesList = () => {
 
     const data = value?.docs.map((doc) => {
         const {
+            uid,
             name,
             size,
             type,
             createdAt,
             url,
-
         } = doc.data() as IUploadFile
 
         return {
+            uid,
             name,
             size,
             type,
@@ -79,9 +80,7 @@ const FilesList = () => {
         <>
             <FilesListContainer>
                 {!loading && user && !loadingFiles ? (
-                    <div>
-                        <DataTable data={data} columns={columns} />
-                    </div>
+                    <DataTable data={data} columns={columns} />
                 ) : (
                     <div>
                         <Skeleton className="w-full h-10 mb-5" />
@@ -94,6 +93,7 @@ const FilesList = () => {
                 isOpen={isOpen}
                 onOpenChange={setIsOpen}
                 file={selectFile}
+                user={user}
             />
         </>
     )

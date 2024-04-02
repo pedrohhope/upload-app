@@ -1,5 +1,6 @@
 
 export interface IUploadFile {
+    uid?: string
     type: string
     url: string
     createdAt: CreatedAt

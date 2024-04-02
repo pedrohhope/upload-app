@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/components/ui/use-toast"
 import { IUploadFile } from "@/interfaces/uploadFile"
-import { addDoc, collection, Timestamp } from "firebase/firestore"
+import { addDoc, collection, doc, setDoc, Timestamp } from "firebase/firestore"
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage"
 import moment from "moment"
 import { MouseEvent, useState } from "react"
@@ -34,6 +34,7 @@ const FilesUpload = () => {
             return;
         }
 
+        setProcessingValue(0)
         setOpen(!open)
     }
 
@@ -61,7 +62,6 @@ const FilesUpload = () => {
 
                 setDisabled(false)
             }, async () => {
-
                 const uploadData: IUploadFile = {
                     url: await getDownloadURL(uploadTask.snapshot.ref),
                     name: file.name,
@@ -70,7 +70,11 @@ const FilesUpload = () => {
                     createdAt: Timestamp.fromDate(moment().toDate()),
                 }
 
-                await addDoc(collection(db, `users/${user.uid}`, "uploads"), uploadData)
+                const docRef = await addDoc(collection(db, `users/${user.uid}/uploads`), uploadData);
+                const fileId = docRef.id;
+                uploadData.uid = fileId;
+
+                await setDoc(doc(db, `users/${user.uid}/uploads/${fileId}`), uploadData);
 
                 toast({
                     title: "Uploaded successfully",
